@@ -239,6 +239,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_goals: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          current_value: number | null
+          goal_name: string
+          goal_type: string
+          id: string
+          target_value: number
+          unit: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number | null
+          goal_name: string
+          goal_type: string
+          id?: string
+          target_value: number
+          unit?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          current_value?: number | null
+          goal_name?: string
+          goal_type?: string
+          id?: string
+          target_value?: number
+          unit?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       workout_history: {
         Row: {
           calories_burned: number
@@ -266,6 +302,45 @@ export type Database = {
           id?: string
           user_id?: string
           workout_name?: string
+        }
+        Relationships: []
+      }
+      workouts: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          difficulty: string | null
+          duration_minutes: number | null
+          estimated_calories: number | null
+          exercises_data: Json
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          duration_minutes?: number | null
+          estimated_calories?: number | null
+          exercises_data?: Json
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          difficulty?: string | null
+          duration_minutes?: number | null
+          estimated_calories?: number | null
+          exercises_data?: Json
+          id?: string
+          name?: string
+          user_id?: string
         }
         Relationships: []
       }
