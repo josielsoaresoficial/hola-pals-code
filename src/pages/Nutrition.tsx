@@ -11,9 +11,12 @@ import NutriAI from "@/components/NutriAI";
 import { NutritionGoalsDialog } from "@/components/NutritionGoalsDialog";
 import { FoodPhotoAnalyzer } from "@/components/FoodPhotoAnalyzer";
 import { WeeklyReportDialog } from "@/components/WeeklyReportDialog";
+import { EditMealDialog } from "@/components/EditMealDialog";
 
 const Nutrition = () => {
   const [selectedMeal, setSelectedMeal] = useState<string | null>(null);
+  const [editingMeal, setEditingMeal] = useState<any>(null);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(null);
@@ -670,7 +673,14 @@ const Nutrition = () => {
                         )}
                         
                         <div className="flex gap-2">
-                          <Button className="bg-orange-500 hover:bg-orange-600 text-white border-0" size="sm">
+                          <Button 
+                            className="bg-orange-500 hover:bg-orange-600 text-white border-0" 
+                            size="sm"
+                            onClick={() => {
+                              setEditingMeal(meal);
+                              setShowEditDialog(true);
+                            }}
+                          >
                             Editar
                           </Button>
                           <Button variant="outline" size="sm">
@@ -862,8 +872,15 @@ const Nutrition = () => {
       
       {/* Weekly Report Dialog */}
       <WeeklyReportDialog 
-        open={showWeeklyReport} 
+        open={showWeeklyReport}
         onOpenChange={setShowWeeklyReport}
+      />
+
+      <EditMealDialog
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+        meal={editingMeal}
+        onMealUpdated={loadTodayMeals}
       />
     </Layout>
   );
