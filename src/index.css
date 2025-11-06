@@ -244,10 +244,9 @@ All colors MUST be HSL.
   /* Animações para exercícios */
   .motivational-text {
     font-family: 'Courier New', monospace;
-    border-right: 2px solid;
-    white-space: nowrap;
-    overflow: hidden;
-    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
   
   @keyframes typing {
