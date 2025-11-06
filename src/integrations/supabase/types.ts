@@ -44,6 +44,33 @@ export type Database = {
         }
         Relationships: []
       }
+      calories_burned: {
+        Row: {
+          activity_type: string | null
+          calories: number
+          created_at: string | null
+          date: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          activity_type?: string | null
+          calories?: number
+          created_at?: string | null
+          date?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string | null
+          calories?: number
+          created_at?: string | null
+          date?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       meals: {
         Row: {
           calories: number
@@ -89,7 +116,9 @@ export type Database = {
       profiles: {
         Row: {
           age: number | null
+          avatar_url: string | null
           created_at: string | null
+          daily_calories_burn_goal: number | null
           daily_calories_goal: number | null
           daily_carbs_goal: number | null
           daily_fat_goal: number | null
@@ -104,7 +133,9 @@ export type Database = {
         }
         Insert: {
           age?: number | null
+          avatar_url?: string | null
           created_at?: string | null
+          daily_calories_burn_goal?: number | null
           daily_calories_goal?: number | null
           daily_carbs_goal?: number | null
           daily_fat_goal?: number | null
@@ -119,7 +150,9 @@ export type Database = {
         }
         Update: {
           age?: number | null
+          avatar_url?: string | null
           created_at?: string | null
+          daily_calories_burn_goal?: number | null
           daily_calories_goal?: number | null
           daily_carbs_goal?: number | null
           daily_fat_goal?: number | null
@@ -167,9 +200,49 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_description: string | null
+          achievement_name: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          points: number | null
+          progress_current: number | null
+          progress_target: number | null
+          user_id: string
+        }
+        Insert: {
+          achievement_description?: string | null
+          achievement_name: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          points?: number | null
+          progress_current?: number | null
+          progress_target?: number | null
+          user_id: string
+        }
+        Update: {
+          achievement_description?: string | null
+          achievement_name?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          points?: number | null
+          progress_current?: number | null
+          progress_target?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       workout_history: {
         Row: {
           calories_burned: number
+          completed_at: string | null
           created_at: string | null
           duration_seconds: number
           id: string
@@ -178,6 +251,7 @@ export type Database = {
         }
         Insert: {
           calories_burned?: number
+          completed_at?: string | null
           created_at?: string | null
           duration_seconds: number
           id?: string
@@ -186,6 +260,7 @@ export type Database = {
         }
         Update: {
           calories_burned?: number
+          completed_at?: string | null
           created_at?: string | null
           duration_seconds?: number
           id?: string
