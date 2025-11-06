@@ -30,12 +30,34 @@ const motivationalMessages = [
   "Cada dia é uma nova oportunidade! 🌅",
   "Supere seus limites, não seus joelhos! 🦵",
   "Disciplina é fazer o que precisa ser feito! 💯",
-  "Seu futuro eu agradecerá pelo treino de hoje! 🙏"
+  "Seu futuro eu agradecerá pelo treino de hoje! 🙏",
+  "Transformação começa com uma decisão! 💥",
+  "Músculos não crescem na academia, mas no descanso! 😴",
+  "Exercício é celebração do que seu corpo pode fazer! 🎉",
+  "Força não vem do físico, vem da vontade! 💪",
+  "Você é mais forte do que pensa! 🦁",
+  "Treinar é investir em você mesmo! 💰",
+  "Pequenos passos, grandes conquistas! 👣",
+  "Sua única limitação é você mesmo! 🚀",
+  "Dor temporária, orgulho permanente! 🏆",
+  "O sucesso é a soma de pequenos esforços! ✨",
+  "Não desista, você está mais perto do que imagina! 🎯",
+  "Coma comida de verdade, não produtos! 🍎",
+  "Treino pesado constrói caráter forte! ⚡",
+  "Compromisso é fazer o que prometeu, mesmo após o ânimo passar! 🔥",
+  "Seu corpo aguenta quase tudo, é sua mente que precisa convencer! 🧠",
+  "Resultados requerem repetição e persistência! 🔁",
+  "O melhor treino é aquele que você faz! 💯",
+  "Ganhos acontecem fora da zona de conforto! 🌟",
+  "Acredite no processo, confie em si mesmo! 🙌",
+  "Seja paciente, mudanças levam tempo! ⏰"
 ];
 
 export const useMotivationalMessage = () => {
   const [displayedMessage, setDisplayedMessage] = useState("");
-  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(() => 
+    Math.floor(Math.random() * motivationalMessages.length)
+  );
   const [isTyping, setIsTyping] = useState(true);
   
   useEffect(() => {
