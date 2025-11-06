@@ -134,7 +134,7 @@ const Progress = () => {
         .from('user_goals')
         .select('*')
         .eq('user_id', user.id)
-        .eq('completed', false)
+        .is('completed_at', null)
         .order('created_at')
         .limit(3);
 

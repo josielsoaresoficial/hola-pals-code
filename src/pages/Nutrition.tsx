@@ -616,6 +616,18 @@ const Nutrition = () => {
               {savedMeals.map((meal) => {
                 const mealTime = new Date(meal.meal_time || meal.meal_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 
+                // Generate meal name from foods_details if name is not available
+                const getMealName = () => {
+                  if (meal.name) {
+                    return meal.name.replace('Refeição: ', '');
+                  }
+                  if (meal.foods_details && Array.isArray(meal.foods_details) && meal.foods_details.length > 0) {
+                    const firstFoods = meal.foods_details.slice(0, 2).map((f: any) => f.name).join(', ');
+                    return meal.foods_details.length > 2 ? `${firstFoods} e mais` : firstFoods;
+                  }
+                  return `Refeição de ${mealTime}`;
+                };
+                
                 return (
                   <div
                     key={meal.id}
@@ -626,7 +638,7 @@ const Nutrition = () => {
                       <div className="flex items-start gap-3 flex-1">
                         <div className="text-3xl">🍽️</div>
                         <div className="flex-1">
-                          <h3 className="font-semibold text-base mb-1">Refeição: {meal.name.replace('Refeição: ', '')}</h3>
+                          <h3 className="font-semibold text-base mb-1">{getMealName()}</h3>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Clock className="w-3 h-3" />
                             {mealTime}
@@ -680,7 +692,7 @@ const Nutrition = () => {
                           <ul className="space-y-2 mb-6">
                             <li className="text-sm flex items-start gap-2">
                               <span className="text-orange-500 mt-0.5">•</span>
-                              <span>{meal.name.replace('Refeição: ', '')} - {Math.round(meal.calories || 0)} kcal</span>
+                              <span>{getMealName()} - {Math.round(meal.calories || 0)} kcal</span>
                             </li>
                           </ul>
                         )}

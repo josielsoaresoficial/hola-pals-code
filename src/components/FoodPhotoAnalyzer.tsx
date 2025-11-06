@@ -118,13 +118,13 @@ export const FoodPhotoAnalyzer = () => {
 
       const { error } = await supabase.from('meals').insert({
         user_id: user.id,
-        name: `Refeição - ${new Date().toLocaleString('pt-BR')}`,
+        meal_time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        meal_date: new Date().toISOString(),
         calories: Math.round(total_refeicao.calories),
         protein: Math.round(total_refeicao.protein),
         carbs: Math.round(total_refeicao.carbs),
         fat: Math.round(total_refeicao.fat),
-        foods_details: foodsDetails,
-        is_estimated: true
+        foods_details: foodsDetails
       });
 
       if (error) throw error;

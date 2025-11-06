@@ -116,10 +116,9 @@ export default function WorkoutPlayer() {
     if (user) {
       await supabase.from("workout_history").insert({
         user_id: user.id,
-        workout_id: workout.id,
+        workout_name: workout.name,
         duration_seconds: totalElapsedSeconds,
-        calories_burned: workout.estimated_calories,
-        exercises_completed: workout.exercises_data.length,
+        calories_burned: workout.estimated_calories
       });
 
       // Adicionar às calorias queimadas
