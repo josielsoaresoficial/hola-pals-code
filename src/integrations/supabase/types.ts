@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      body_metrics: {
+        Row: {
+          bmi: number | null
+          body_fat_percentage: number | null
+          created_at: string | null
+          id: string
+          muscle_mass: number | null
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          bmi?: number | null
+          body_fat_percentage?: number | null
+          created_at?: string | null
+          id?: string
+          muscle_mass?: number | null
+          user_id: string
+          weight: number
+        }
+        Update: {
+          bmi?: number | null
+          body_fat_percentage?: number | null
+          created_at?: string | null
+          id?: string
+          muscle_mass?: number | null
+          user_id?: string
+          weight?: number
+        }
+        Relationships: []
+      }
       meals: {
         Row: {
           calories: number
@@ -53,6 +83,105 @@ export type Database = {
           meal_time?: string
           protein?: number
           user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          daily_calories_goal: number | null
+          daily_carbs_goal: number | null
+          daily_fat_goal: number | null
+          daily_protein_goal: number | null
+          height: number | null
+          id: string
+          name: string | null
+          onboarding_completed: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          daily_calories_goal?: number | null
+          daily_carbs_goal?: number | null
+          daily_fat_goal?: number | null
+          daily_protein_goal?: number | null
+          height?: number | null
+          id?: string
+          name?: string | null
+          onboarding_completed?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          daily_calories_goal?: number | null
+          daily_carbs_goal?: number | null
+          daily_fat_goal?: number | null
+          daily_protein_goal?: number | null
+          height?: number | null
+          id?: string
+          name?: string | null
+          onboarding_completed?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      progress_strength: {
+        Row: {
+          created_at: string | null
+          current_weight: number
+          exercise_name: string
+          id: string
+          initial_weight: number
+          target_weight: number
+          unit: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          current_weight: number
+          exercise_name: string
+          id?: string
+          initial_weight: number
+          target_weight: number
+          unit?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          current_weight?: number
+          exercise_name?: string
+          id?: string
+          initial_weight?: number
+          target_weight?: number
+          unit?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workout_history: {
+        Row: {
+          calories_burned: number
+          created_at: string | null
+          duration_seconds: number
+          id: string
+          user_id: string
+          workout_name: string
+        }
+        Insert: {
+          calories_burned?: number
+          created_at?: string | null
+          duration_seconds: number
+          id?: string
+          user_id: string
+          workout_name: string
+        }
+        Update: {
+          calories_burned?: number
+          created_at?: string | null
+          duration_seconds?: number
+          id?: string
+          user_id?: string
+          workout_name?: string
         }
         Relationships: []
       }
