@@ -88,40 +88,49 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: number | null
           created_at: string | null
           daily_calories_goal: number | null
           daily_carbs_goal: number | null
           daily_fat_goal: number | null
           daily_protein_goal: number | null
+          fitness_goal: string | null
           height: number | null
           id: string
           name: string | null
           onboarding_completed: boolean | null
           user_id: string
+          weight: number | null
         }
         Insert: {
+          age?: number | null
           created_at?: string | null
           daily_calories_goal?: number | null
           daily_carbs_goal?: number | null
           daily_fat_goal?: number | null
           daily_protein_goal?: number | null
+          fitness_goal?: string | null
           height?: number | null
           id?: string
           name?: string | null
           onboarding_completed?: boolean | null
           user_id: string
+          weight?: number | null
         }
         Update: {
+          age?: number | null
           created_at?: string | null
           daily_calories_goal?: number | null
           daily_carbs_goal?: number | null
           daily_fat_goal?: number | null
           daily_protein_goal?: number | null
+          fitness_goal?: string | null
           height?: number | null
           id?: string
           name?: string | null
           onboarding_completed?: boolean | null
           user_id?: string
+          weight?: number | null
         }
         Relationships: []
       }
