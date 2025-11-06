@@ -311,6 +311,7 @@ const Nutrition = () => {
             carbs: result.totals.carbs,
             fat: result.totals.fat,
             meal_date: new Date().toISOString(),
+            meal_time: new Date().toISOString(),
             foods_details: result.foods,
             is_estimated: result.isEstimated || false,
             notes: result.notes || ''
@@ -591,7 +592,7 @@ const Nutrition = () => {
           ) : (
             <div className="space-y-3">
               {savedMeals.map((meal) => {
-                const mealTime = new Date(meal.meal_time).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                const mealTime = new Date(meal.meal_time || meal.meal_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 
                 return (
                   <div
@@ -880,7 +881,11 @@ const Nutrition = () => {
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
         meal={editingMeal}
-        onMealUpdated={loadTodayMeals}
+        onMealUpdated={() => {
+          loadTodayMeals();
+          setShowEditDialog(false);
+          setEditingMeal(null);
+        }}
       />
     </Layout>
   );
