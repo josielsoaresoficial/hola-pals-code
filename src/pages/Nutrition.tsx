@@ -330,10 +330,15 @@ const Nutrition = () => {
           
           // Toast com análise completa e detalhada
           toast({
-            title: 'Análise Concluída! 🎉',
+            title: 'Refeição Salva! 🎉',
             description: `Alimentos identificados: ${foodsList} ✨ Total: ${Math.round(result.totals.calories)} kcal | Proteínas: ${Math.round(result.totals.protein * 10) / 10}g | Carbs: ${Math.round(result.totals.carbs * 10) / 10}g | Gorduras: ${Math.round(result.totals.fat * 10) / 10}g`,
-            duration: 10000,
+            duration: 8000,
           });
+          
+          // Limpar a análise após salvar para mostrar que foi salvo com sucesso
+          setTimeout(() => {
+            resetAnalysis();
+          }, 1000);
         }
       }
 
