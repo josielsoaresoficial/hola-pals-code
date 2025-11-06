@@ -74,31 +74,39 @@ const Nutrition = () => {
       const { data: session } = await supabase.auth.getSession();
       
       if (!session?.session?.user) {
+        console.log("Sem sessão ativa");
         setSavedMeals([]);
         return;
       }
       
       const today = new Date();
       today.setHours(0, 0, 0, 0);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      console.log("Buscando refeições de:", today.toISOString(), "até", tomorrow.toISOString());
       
       const { data, error } = await (supabase as any)
         .from('meals')
         .select('*')
         .eq('user_id', session.session.user.id)
         .gte('meal_date', today.toISOString())
+        .lt('meal_date', tomorrow.toISOString())
         .order('meal_date', { ascending: false });
       
       if (error) {
-        if (import.meta.env.DEV) {
-          console.error("Erro ao carregar refeições:", error);
-        }
+        console.error("Erro ao carregar refeições:", error);
+        toast({
+          title: 'Erro ao carregar refeições',
+          description: error.message,
+          variant: 'destructive',
+        });
       } else {
+        console.log("Refeições carregadas:", data?.length || 0, "refeições", data);
         setSavedMeals(data || []);
       }
     } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error("Erro ao buscar refeições:", error);
-      }
+      console.error("Erro ao buscar refeições:", error);
     } finally {
       setIsLoadingMeals(false);
     }
@@ -301,30 +309,37 @@ const Nutrition = () => {
       const { data: session } = await supabase.auth.getSession();
       
       if (session?.session?.user) {
-        const { error: saveError } = await (supabase as any)
+        const mealData = {
+          user_id: session.session.user.id,
+          name: mealName,
+          calories: Math.round(result.totals.calories),
+          protein: result.totals.protein,
+          carbs: result.totals.carbs,
+          fat: result.totals.fat,
+          meal_date: new Date().toISOString(),
+          meal_time: new Date().toISOString(),
+          foods_details: result.foods,
+          is_estimated: result.isEstimated || false,
+          notes: result.notes || ''
+        };
+        
+        console.log('Salvando refeição:', mealData);
+        
+        const { data: savedMeal, error: saveError } = await (supabase as any)
           .from('meals')
-          .insert({
-            user_id: session.session.user.id,
-            name: mealName,
-            calories: Math.round(result.totals.calories),
-            protein: result.totals.protein,
-            carbs: result.totals.carbs,
-            fat: result.totals.fat,
-            meal_date: new Date().toISOString(),
-            meal_time: new Date().toISOString(),
-            foods_details: result.foods,
-            is_estimated: result.isEstimated || false,
-            notes: result.notes || ''
-          });
+          .insert(mealData)
+          .select();
         
         if (saveError) {
           console.error('Erro ao salvar refeição:', saveError);
           toast({
             title: 'Erro ao salvar',
-            description: 'Não foi possível salvar a refeição no histórico.',
+            description: `Não foi possível salvar: ${saveError.message}`,
             variant: 'destructive',
           });
         } else {
+          console.log('Refeição salva com sucesso:', savedMeal);
+          
           // Recarregar lista de refeições para atualizar o resumo
           await loadTodayMeals();
           
@@ -340,6 +355,13 @@ const Nutrition = () => {
             resetAnalysis();
           }, 1000);
         }
+      } else {
+        console.log('Usuário não autenticado - não é possível salvar refeição');
+        toast({
+          title: 'Erro',
+          description: 'Você precisa estar logado para salvar refeições',
+          variant: 'destructive',
+        });
       }
 
       // Toast removido daqui - será mostrado após salvar com sucesso
