@@ -304,23 +304,18 @@ const Nutrition = () => {
         .join(' ~ ');
 
       // Salvar refeição no banco de dados
-      const mealName = `Refeição: ${result.foods.map((f: any) => f.name).slice(0, 3).join(', ')}${result.foods.length > 3 ? '...' : ''}`;
-      
       const { data: session } = await supabase.auth.getSession();
       
       if (session?.session?.user) {
         const mealData = {
           user_id: session.session.user.id,
-          name: mealName,
           calories: Math.round(result.totals.calories),
           protein: result.totals.protein,
           carbs: result.totals.carbs,
           fat: result.totals.fat,
           meal_date: new Date().toISOString(),
-          meal_time: new Date().toISOString(),
-          foods_details: result.foods,
-          is_estimated: result.isEstimated || false,
-          notes: result.notes || ''
+          meal_time: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          foods_details: result.foods
         };
         
         console.log('Salvando refeição:', mealData);
