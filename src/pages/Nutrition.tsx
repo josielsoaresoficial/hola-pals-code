@@ -28,6 +28,7 @@ const Nutrition = () => {
   });
   const [showGoalsDialog, setShowGoalsDialog] = useState(false);
   const [showWeeklyReport, setShowWeeklyReport] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -221,6 +222,7 @@ const Nutrition = () => {
 
   const analyzeImage = async (imageData: string) => {
     setIsAnalyzing(true);
+    setAnalysisResult(null);
     try {
       // Chamar a edge function de análise de alimentos
       const { data: functionData, error: functionError } = await supabase.functions.invoke('analyze-food', {
@@ -273,6 +275,9 @@ const Nutrition = () => {
       } else {
         throw new Error(functionData?.error || 'Resposta inválida da análise');
       }
+
+      // Salvar resultado para exibição
+      setAnalysisResult(result);
 
       // Formatar resultados para exibição completa com todos os detalhes
       const foodsList = result.foods
@@ -357,6 +362,7 @@ const Nutrition = () => {
     setCapturedImage(null);
     setSelectedFile(null);
     setIsAnalyzing(false);
+    setAnalysisResult(null);
   };
 
   // Calcular totais das refeições do dia
@@ -807,7 +813,70 @@ const Nutrition = () => {
                     )}
                   </div>
                 )}
-                {!isAnalyzing && (
+                {!isAnalyzing && analysisResult && (
+                  <div className="space-y-4">
+                    <div className="text-center mb-4">
+                      <h4 className="font-semibold text-primary mb-2">Análise Concluída! 🎉</h4>
+                    </div>
+
+                    {/* Alimentos identificados */}
+                    <div className="space-y-2 max-h-[40vh] overflow-y-auto">
+                      <p className="text-sm font-medium mb-2">Alimentos identificados:</p>
+                      {analysisResult.foods.map((food: any, index: number) => {
+                        const confidence = food.confidence === 'alta' ? '✓' : 
+                                         food.confidence === 'média' ? '~' : '?';
+                        return (
+                          <div key={index} className="text-xs bg-muted/50 rounded p-2">
+                            <span className="font-medium">
+                              {confidence} {food.name}
+                            </span>
+                            {food.portion && (
+                              <span className="text-muted-foreground ml-1">
+                                ({food.portion})
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Totais nutricionais */}
+                    <div className="bg-gradient-to-r from-primary/20 to-secondary/20 rounded-lg p-4">
+                      <p className="text-sm font-medium mb-3 text-center">✨ Total:</p>
+                      <div className="grid grid-cols-2 gap-3 text-center">
+                        <div>
+                          <p className="text-2xl font-bold text-primary">
+                            {Math.round(analysisResult.totals.calories)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">kcal</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-bold text-secondary">
+                            {Math.round(analysisResult.totals.protein * 10) / 10}g
+                          </p>
+                          <p className="text-xs text-muted-foreground">Proteínas</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-bold text-accent">
+                            {Math.round(analysisResult.totals.carbs * 10) / 10}g
+                          </p>
+                          <p className="text-xs text-muted-foreground">Carbs</p>
+                        </div>
+                        <div>
+                          <p className="text-lg font-bold text-primary">
+                            {Math.round(analysisResult.totals.fat * 10) / 10}g
+                          </p>
+                          <p className="text-xs text-muted-foreground">Gorduras</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button variant="nutrition" onClick={resetAnalysis} className="w-full">
+                      Analisar Nova Refeição
+                    </Button>
+                  </div>
+                )}
+                {!isAnalyzing && !analysisResult && (
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground mb-4">
                       Refeição analisada com sucesso! Os nutrientes foram calculados.
