@@ -277,10 +277,9 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
 
   return (
     <div className="relative w-full flex flex-col items-center justify-center py-0 gap-2">
-      {/* Edit Controls - Apenas Desktop */}
-      {!isMobile && (
-        <>
-          <div className="flex gap-2 flex-wrap justify-center">
+      {/* Edit Controls - Mobile e Desktop */}
+      <>
+        <div className="flex gap-2 flex-wrap justify-center">
               <Button 
                 variant={isEditing ? "default" : "outline"} 
                 size="default"
@@ -359,8 +358,7 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                 </div>
               </Card>
             )}
-        </>
-      )}
+      </>
 
       <div
         id="muscle-map-container"
@@ -394,8 +392,8 @@ export function WorkoutMuscleMap({ view, selectedMuscle, onMuscleSelect }: Worko
                 left: label.side === "left" && label.left ? label.left : undefined,
                 right: label.side === "right" && label.right ? label.right : undefined
               }}
-              onClick={(e) => (isEditing && !isMobile) ? handleToggleLabelEdit(label.muscle, e) : handleLabelClick(label.muscle)}
-              onMouseDown={(e) => (isEditing && !isMobile) && handleDragStart(e, label.muscle)}
+              onClick={(e) => isEditing ? handleToggleLabelEdit(label.muscle, e) : handleLabelClick(label.muscle)}
+              onMouseDown={(e) => isEditing && handleDragStart(e, label.muscle)}
             >
               <div className="space-y-1">
                 <div className={`flex items-center ${label.side === "left" ? "flex-row" : "flex-row-reverse"} gap-1`}>
