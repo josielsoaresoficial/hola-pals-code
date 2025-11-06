@@ -614,7 +614,8 @@ const Nutrition = () => {
           ) : (
             <div className="space-y-3">
               {savedMeals.map((meal) => {
-                const mealTime = new Date(meal.meal_time || meal.meal_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                // meal.meal_time is already a formatted string like "14:30", meal_date is a timestamp
+                const mealTime = meal.meal_time || new Date(meal.meal_date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
                 
                 // Generate meal name from foods_details if name is not available
                 const getMealName = () => {
