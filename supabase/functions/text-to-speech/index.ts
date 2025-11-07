@@ -90,6 +90,8 @@ serve(async (req) => {
       }
     }
 
+    // ===== CÓDIGO ELEVENLABS APENAS PARA VOZES ELEVENLABS =====
+
     // Criar chave de cache
     const cacheKey = `${voiceProvider}:${text.substring(0, 100)}`;
     const cached = requestCache.get(cacheKey);
