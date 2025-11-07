@@ -14,6 +14,8 @@ import lateralRaise from '@/assets/exercises/lateral-raise.png';
 import deadlift from '@/assets/exercises/deadlift.png';
 import legAdduction from '@/assets/exercises/leg-adduction.png';
 import tricepSkullcrusher from '@/assets/exercises/tricep-skullcrusher.png';
+import shrugs from '@/assets/exercises/shrugs.png';
+import barbellRow from '@/assets/exercises/barbell-row.png';
 
 interface AnimatedExerciseProps {
   animation: string;
@@ -28,38 +30,61 @@ const AnimatedExercise: React.FC<AnimatedExerciseProps> = ({ animation, size = '
   };
 
   const exerciseImages: Record<string, string> = {
+    // Peito
     'supino_reto': benchPress,
     'supino_inclinado': benchPress,
-    'agachamento_livre': squat,
-    'agachamento': squat,
     'crucifixo': dumbbellFly,
     'crucifixo_inclinado': dumbbellFly,
+    
+    // Costas
     'remada_halter': dumbbellRow,
-    'remada_barra': dumbbellRow,
-    'remada_curvada': dumbbellRow,
-    'corrida': running,
+    'remada_barra': barbellRow,
+    'remada_curvada': barbellRow,
+    'barra_fixa': pullUp,
+    'pulldown': pullUp,
+    'levantamento_terra': deadlift,
+    'stiff': deadlift,
+    
+    // Pernas
+    'agachamento_livre': squat,
+    'agachamento': squat,
+    'leg_press': legPress,
+    'aducao': legAdduction,
+    'abducao': legAdduction,
+    
+    // Glúteos
+    'elevacao_pelvica': gluteBridge,
+    'ponte_gluteo': gluteBridge,
+    
+    // Ombros
     'desenvolvimento': shoulderPress,
     'desenvolvimento_halteres': shoulderPress,
     'desenvolvimento_militar': shoulderPress,
+    'elevacao_lateral': lateralRaise,
+    
+    // Trapézio
+    'encolhimento': shrugs,
+    'encolhimento_halteres': shrugs,
+    'remada_alta': shrugs,
+    'shrug': shrugs,
+    
+    // Bíceps
     'rosca_direta': bicepCurl,
     'rosca_alternada': bicepCurl,
     'rosca_martelo': bicepCurl,
+    
+    // Tríceps
     'triceps_testa': tricepSkullcrusher,
     'triceps_corda': tricepSkullcrusher,
     'triceps_barra': tricepSkullcrusher,
-    'barra_fixa': pullUp,
-    'pulldown': pullUp,
-    'leg_press': legPress,
-    'elevacao_pelvica': gluteBridge,
-    'ponte_gluteo': gluteBridge,
-    'elevacao_lateral': lateralRaise,
-    'levantamento_terra': deadlift,
-    'stiff': deadlift,
+    
+    // Abdômen
     'abdominal_supra': crunch,
     'abdominal': crunch,
     'prancha': crunch,
-    'aducao': legAdduction,
-    'abducao': legAdduction
+    
+    // Cardio
+    'corrida': running
   };
 
   const exerciseImage = exerciseImages[animation] || benchPress;
