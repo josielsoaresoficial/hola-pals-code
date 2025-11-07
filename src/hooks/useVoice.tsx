@@ -53,10 +53,7 @@ export const useVoice = () => {
       // Play audio
       const audio = new Audio(url);
       
-      audio.onplay = () => {
-        setIsPlaying(true);
-        setIsLoading(false);
-      };
+      audio.onplay = () => setIsPlaying(true);
       audio.onended = () => {
         setIsPlaying(false);
         sessionStorage.removeItem('voice_playing');
@@ -64,7 +61,6 @@ export const useVoice = () => {
       };
       audio.onerror = () => {
         setIsPlaying(false);
-        setIsLoading(false);
         sessionStorage.removeItem('voice_playing');
         URL.revokeObjectURL(url);
         toast.error('Erro ao reproduzir áudio');
