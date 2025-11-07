@@ -17,7 +17,7 @@ serve(async (req) => {
   }
 
   try {
-    const { text, gender } = await req.json();
+    const { text, voiceProvider = 'elevenlabs-male' } = await req.json();
 
     if (!text?.trim()) {
       return new Response(
@@ -29,8 +29,48 @@ serve(async (req) => {
       );
     }
 
+    // Se for Google TTS, usar a API gratuita do Google
+    if (voiceProvider === 'google') {
+      try {
+        // Usar a API gratuita do Google Translate TTS
+        const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=pt-BR&q=${encodeURIComponent(text.substring(0, 200))}`;
+        
+        const googleResponse = await fetch(googleUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0'
+          }
+        });
+
+        if (!googleResponse.ok) {
+          throw new Error('Erro ao gerar voz do Google');
+        }
+
+        const audioBuffer = await googleResponse.arrayBuffer();
+        const uint8Array = new Uint8Array(audioBuffer);
+        let binaryString = '';
+        const chunkSize = 8192;
+        
+        for (let i = 0; i < uint8Array.length; i += chunkSize) {
+          const chunk = uint8Array.subarray(i, i + chunkSize);
+          binaryString += String.fromCharCode(...chunk);
+        }
+        
+        const base64Audio = btoa(binaryString);
+
+        return new Response(
+          JSON.stringify({ audioContent: base64Audio }),
+          {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
+      } catch (googleError) {
+        console.error('Erro ao usar Google TTS:', googleError);
+        // Fallback para ElevenLabs se Google falhar
+      }
+    }
+
     // Criar chave de cache
-    const cacheKey = `${gender}:${text.substring(0, 100)}`;
+    const cacheKey = `${voiceProvider}:${text.substring(0, 100)}`;
     const cached = requestCache.get(cacheKey);
     
     if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
@@ -45,15 +85,17 @@ serve(async (req) => {
 
     console.log('Gerando voz para:', { 
       textLength: text.length,
-      gender,
+      voiceProvider,
       preview: text.substring(0, 50) + '...'
     });
 
-    // Obter voice ID baseado no gênero
-    // Usando vozes padrão do ElevenLabs ou variáveis de ambiente personalizadas
-    const voiceId = gender === 'female' 
-      ? (Deno.env.get('ELEVENLABS_VOICE_FEMALE') || 'EXAVITQu4vr4xnSDxMaL') // Sarah (voice feminina)
-      : (Deno.env.get('ELEVENLABS_VOICE_MALE') || 'TX3LPaxmHKxFdv7VOQHJ'); // Liam (voice masculina)
+    // Obter voice ID baseado no provider
+    let voiceId: string;
+    if (voiceProvider === 'elevenlabs-female') {
+      voiceId = Deno.env.get('ELEVENLABS_VOICE_FEMALE') || 'EXAVITQu4vr4xnSDxMaL'; // Sarah
+    } else {
+      voiceId = Deno.env.get('ELEVENLABS_VOICE_MALE') || 'TX3LPaxmHKxFdv7VOQHJ'; // Liam
+    }
 
     const apiKey = Deno.env.get('ELEVENLABS_API_KEY');
     if (!apiKey) {

@@ -2,18 +2,20 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useChat } from '@/hooks/useChat';
+import { VoiceProvider } from '@/hooks/useVoice';
+import VoiceSettings from './VoiceSettings';
 
 const NutriAI = () => {
   const { user } = useAuth();
-  const [userGender, setUserGender] = useState<'male' | 'female'>('male');
-  const { messages, sendMessage, startConversation, isProcessing } = useChat(userGender);
+  const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>('elevenlabs-male');
+  const { messages, sendMessage, startConversation, isProcessing } = useChat(voiceProvider);
   const [isActive, setIsActive] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [profileName, setProfileName] = useState<string>('');
   const recognitionRef = useRef<any>(null);
   const isRecognitionActive = useRef(false);
 
-  // ✅ BUSCAR NOME DO PERFIL E GÊNERO DO USUÁRIO
+  // ✅ BUSCAR NOME DO PERFIL E PREFERÊNCIA DE VOZ
   useEffect(() => {
     const fetchProfileData = async () => {
       if (!user?.id) return;
@@ -29,15 +31,21 @@ const NutriAI = () => {
         setProfileName(profile.name);
       }
       
-      // Buscar gênero do localStorage
-      const storedGender = localStorage.getItem('userGender') as 'male' | 'female';
-      if (storedGender) {
-        setUserGender(storedGender);
+      // Buscar preferência de voz do localStorage
+      const storedVoice = localStorage.getItem('voiceProvider') as VoiceProvider;
+      if (storedVoice) {
+        setVoiceProvider(storedVoice);
       }
     };
     
     fetchProfileData();
   }, [user]);
+
+  // Salvar preferência de voz quando mudar
+  const handleVoiceChange = (newVoice: VoiceProvider) => {
+    setVoiceProvider(newVoice);
+    localStorage.setItem('voiceProvider', newVoice);
+  };
 
   // ✅ EXTRAIR PRIMEIRO NOME DO PERFIL
   const getFirstName = (fullName: string) => {
@@ -171,15 +179,23 @@ const NutriAI = () => {
               <div>
                 <h3 className="font-bold text-base">NutriAI - {firstName}</h3>
                 <p className="text-xs opacity-90">
-                  {userGender === 'male' ? 'Voz Masculina' : 'Voz Feminina'}
+                  {voiceProvider === 'elevenlabs-male' && '👨 Voz Masculina'}
+                  {voiceProvider === 'elevenlabs-female' && '👩 Voz Feminina'}
+                  {voiceProvider === 'google' && '🔊 Voz Google'}
                 </p>
               </div>
-              <button 
-                onClick={deactivateNutriAI}
-                className="text-white hover:text-green-200 text-base bg-green-600 hover:bg-green-700 w-7 h-7 rounded-full flex items-center justify-center"
-              >
-                ✕
-              </button>
+              <div className="flex items-center gap-2">
+                <VoiceSettings 
+                  currentVoice={voiceProvider}
+                  onVoiceChange={handleVoiceChange}
+                />
+                <button 
+                  onClick={deactivateNutriAI}
+                  className="text-white hover:text-green-200 text-base bg-green-600 hover:bg-green-700 w-7 h-7 rounded-full flex items-center justify-center"
+                >
+                  ✕
+                </button>
+              </div>
             </div>
           </div>
           

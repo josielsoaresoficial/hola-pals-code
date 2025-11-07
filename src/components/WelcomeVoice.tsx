@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useVoice } from "@/hooks/useVoice";
+import { useVoice, VoiceProvider } from "@/hooks/useVoice";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -19,7 +19,16 @@ export const WelcomeVoice = () => {
           .eq('user_id', user.id)
           .maybeSingle();
 
-        const gender = (localStorage.getItem("userGender") as 'male' | 'female') || 'male';
+        // Buscar preferência de voz do localStorage (migrar formato antigo)
+        let voiceProvider: VoiceProvider = localStorage.getItem('voiceProvider') as VoiceProvider || 'elevenlabs-male';
+        
+        // Migrar formato antigo (male/female) para novo formato
+        const oldGender = localStorage.getItem("userGender");
+        if (oldGender && !localStorage.getItem('voiceProvider')) {
+          voiceProvider = oldGender === 'female' ? 'elevenlabs-female' : 'elevenlabs-male';
+          localStorage.setItem('voiceProvider', voiceProvider);
+        }
+
         let userName = profile?.name || 'Amigo';
         
         // Se for email, pegar parte antes do @ e remover caracteres especiais
@@ -37,7 +46,7 @@ export const WelcomeVoice = () => {
 
         console.log('Speaking welcome message:', welcomeMessage);
         
-        await speak(welcomeMessage, gender);
+        await speak(welcomeMessage, voiceProvider);
         setHasSpoken(true);
       } catch (error) {
         console.error('Error in WelcomeVoice:', error);

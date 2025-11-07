@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+export type VoiceProvider = 'elevenlabs-male' | 'elevenlabs-female' | 'google';
+
 export const useVoice = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const speak = async (text: string, gender: 'male' | 'female' = 'male') => {
+  const speak = async (text: string, voiceProvider: VoiceProvider = 'elevenlabs-male') => {
     if (!text || isPlaying) return;
 
     // Verificar se outra voz já está tocando (previne duplicação)
@@ -20,10 +22,10 @@ export const useVoice = () => {
     sessionStorage.setItem('voice_playing', 'true');
     
     try {
-      console.log('Requesting speech for:', { text, gender });
+      console.log('Requesting speech for:', { text, voiceProvider });
 
       const { data, error } = await supabase.functions.invoke('text-to-speech', {
-        body: { text, gender },
+        body: { text, voiceProvider },
       });
 
       if (error) {

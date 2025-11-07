@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { useVoice } from './useVoice';
+import { useVoice, VoiceProvider } from './useVoice';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Message {
@@ -20,7 +20,7 @@ interface Intent {
   data?: string;
 }
 
-export const useChat = (userGender: 'male' | 'female' = 'male') => {
+export const useChat = (voiceProvider: VoiceProvider = 'elevenlabs-male') => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [userName, setUserName] = useState('');
@@ -157,7 +157,7 @@ export const useChat = (userGender: 'male' | 'female' = 'male') => {
 
       // Falar a resposta se solicitado
       if (useVoice && !isVoiceLoading) {
-        await speak(aiResponse, userGender);
+        await speak(aiResponse, voiceProvider);
       }
 
     } catch (error) {
@@ -171,7 +171,7 @@ export const useChat = (userGender: 'male' | 'female' = 'male') => {
     } finally {
       setIsProcessing(false);
     }
-  }, [analyzeIntent, generateResponse, speak, isProcessing, isVoiceLoading, userGender]);
+  }, [analyzeIntent, generateResponse, speak, isProcessing, isVoiceLoading, voiceProvider]);
 
   // Inicializar conversa
   const startConversation = useCallback(async () => {
@@ -184,8 +184,8 @@ export const useChat = (userGender: 'male' | 'female' = 'male') => {
     chatHistoryRef.current = [welcomeMessage];
     
     // Falar a mensagem de boas-vindas
-    setTimeout(() => speak('Olá! Eu sou seu NutriAI. Qual é o seu nome?', userGender), 1000);
-  }, [speak, userGender]);
+    setTimeout(() => speak('Olá! Eu sou seu NutriAI. Qual é o seu nome?', voiceProvider), 1000);
+  }, [speak, voiceProvider]);
 
   return {
     messages,
