@@ -1,6 +1,8 @@
 import { useState, useRef, useCallback } from 'react';
 import { useVoice, VoiceProvider } from './useVoice';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './useAuth';
+import { toast } from 'sonner';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -21,10 +23,12 @@ interface Intent {
 }
 
 export const useChat = (initialVoiceProvider: VoiceProvider = 'elevenlabs-male') => {
+  const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [userName, setUserName] = useState('');
   const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>(initialVoiceProvider);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [conversationContext, setConversationContext] = useState<ConversationContext>({
     hasIntroduced: false,
     lastObjective: '',
@@ -127,11 +131,91 @@ export const useChat = (initialVoiceProvider: VoiceProvider = 'elevenlabs-male')
     }
   }, [userName]);
 
+  // Salvar mensagem no banco
+  const saveMessage = useCallback(async (conversationId: string, role: 'user' | 'assistant', content: string) => {
+    if (!user?.id) return;
+
+    try {
+      await supabase
+        .from('nutri_ai_messages' as any)
+        .insert({
+          conversation_id: conversationId,
+          role,
+          content
+        });
+    } catch (error) {
+      console.error('Erro ao salvar mensagem:', error);
+    }
+  }, [user]);
+
+  // Criar nova conversa
+  const createConversation = useCallback(async (firstMessage: string) => {
+    if (!user?.id) return null;
+
+    try {
+      const title = firstMessage.slice(0, 50) + (firstMessage.length > 50 ? '...' : '');
+      const { data, error } = await supabase
+        .from('nutri_ai_conversations' as any)
+        .insert({
+          user_id: user.id,
+          title
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return (data as any)?.id || null;
+    } catch (error) {
+      console.error('Erro ao criar conversa:', error);
+      return null;
+    }
+  }, [user]);
+
+  // Carregar conversa anterior
+  const loadConversation = useCallback(async (conversationId: string) => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('nutri_ai_messages' as any)
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      const loadedMessages: Message[] = (data as any[]).map((msg: any) => ({
+        role: msg.role,
+        content: msg.content,
+        timestamp: new Date(msg.created_at)
+      }));
+
+      setMessages(loadedMessages);
+      chatHistoryRef.current = loadedMessages;
+      setCurrentConversationId(conversationId);
+      toast.success('Conversa carregada');
+    } catch (error) {
+      console.error('Erro ao carregar conversa:', error);
+      toast.error('Erro ao carregar conversa');
+    }
+  }, [user]);
+
   // Processar mensagem do usuário
   const sendMessage = useCallback(async (content: string, useVoice: boolean = true) => {
     if (!content.trim() || isProcessing) return;
 
     setIsProcessing(true);
+    
+    // Criar conversa se não existir
+    if (!currentConversationId && user?.id) {
+      const newConvId = await createConversation(content);
+      if (newConvId) {
+        setCurrentConversationId(newConvId);
+        await saveMessage(newConvId, 'user', content.trim());
+      }
+    } else if (currentConversationId) {
+      await saveMessage(currentConversationId, 'user', content.trim());
+    }
     
     // Adicionar mensagem do usuário
     const userMessage: Message = { role: 'user', content: content.trim(), timestamp: new Date() };
@@ -156,6 +240,11 @@ export const useChat = (initialVoiceProvider: VoiceProvider = 'elevenlabs-male')
       setMessages(prev => [...prev, aiMessage]);
       chatHistoryRef.current = [...chatHistoryRef.current, aiMessage];
 
+      // Salvar resposta do assistente
+      if (currentConversationId) {
+        await saveMessage(currentConversationId, 'assistant', aiResponse);
+      }
+
       // Falar a resposta se solicitado
       if (useVoice && !isVoiceLoading) {
         await speak(aiResponse, voiceProvider);
@@ -172,7 +261,7 @@ export const useChat = (initialVoiceProvider: VoiceProvider = 'elevenlabs-male')
     } finally {
       setIsProcessing(false);
     }
-  }, [analyzeIntent, generateResponse, speak, isProcessing, isVoiceLoading, voiceProvider]);
+  }, [analyzeIntent, generateResponse, speak, isProcessing, isVoiceLoading, voiceProvider, currentConversationId, user, createConversation, saveMessage]);
 
   // Inicializar conversa
   const startConversation = useCallback(async () => {
@@ -192,10 +281,12 @@ export const useChat = (initialVoiceProvider: VoiceProvider = 'elevenlabs-male')
     messages,
     sendMessage,
     startConversation,
+    loadConversation,
     isProcessing,
     userName,
     conversationContext,
     voiceProvider,
-    setVoiceProvider
+    setVoiceProvider,
+    currentConversationId
   };
 };

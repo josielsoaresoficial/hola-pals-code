@@ -4,13 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useChat } from '@/hooks/useChat';
 import { VoiceProvider } from '@/hooks/useVoice';
 import VoiceSettings from './VoiceSettings';
+import ConversationHistory from './ConversationHistory';
+import { History } from 'lucide-react';
 
 const NutriAI = () => {
   const { user } = useAuth();
   const { 
     messages, 
     sendMessage, 
-    startConversation, 
+    startConversation,
+    loadConversation,
     isProcessing,
     voiceProvider,
     setVoiceProvider 
@@ -18,6 +21,7 @@ const NutriAI = () => {
   const [isActive, setIsActive] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const [profileName, setProfileName] = useState<string>('');
   const recognitionRef = useRef<any>(null);
   const isRecognitionActive = useRef(false);
@@ -221,6 +225,13 @@ const NutriAI = () => {
                 </p>
               </div>
               <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setShowHistory(!showHistory)}
+                  className="text-white hover:text-green-200 text-base bg-green-600 hover:bg-green-700 w-7 h-7 rounded-full flex items-center justify-center"
+                  title="Histórico de conversas"
+                >
+                  <History className="h-4 w-4" />
+                </button>
                 <VoiceSettings 
                   currentVoice={voiceProvider}
                   onVoiceChange={handleVoiceChange}
@@ -242,8 +253,17 @@ const NutriAI = () => {
             </div>
           </div>
           
-          <div className="h-60 md:h-72 p-3 overflow-y-auto bg-gray-50 dark:bg-gray-950">
-            {messages.map((msg, index) => (
+          {showHistory ? (
+            <ConversationHistory 
+              onSelectConversation={(convId) => {
+                loadConversation(convId);
+                setShowHistory(false);
+              }}
+              onClose={() => setShowHistory(false)}
+            />
+          ) : (
+            <div className="h-60 md:h-72 p-3 overflow-y-auto bg-gray-50 dark:bg-gray-950">
+              {messages.map((msg, index) => (
               <div key={index} className={`mb-3 ${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
                 <div className={`inline-block max-w-[85%] p-2 rounded-xl text-sm ${
                   msg.role === 'user' 
@@ -258,15 +278,16 @@ const NutriAI = () => {
               </div>
             ))}
             
-            {/* ✅ INDICADOR DE STATUS */}
-            {(isListening || isProcessing || isPaused) && (
-              <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-                {isPaused && '⏸️ Conversa pausada'}
-                {!isPaused && isListening && '🎤 Ouvindo... Fale agora!'}
-                {!isPaused && isProcessing && '🔊 NutriAI processando...'}
-              </div>
-            )}
-          </div>
+              {/* ✅ INDICADOR DE STATUS */}
+              {(isListening || isProcessing || isPaused) && (
+                <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
+                  {isPaused && '⏸️ Conversa pausada'}
+                  {!isPaused && isListening && '🎤 Ouvindo... Fale agora!'}
+                  {!isPaused && isProcessing && '🔊 NutriAI processando...'}
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="p-3 bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-b-2xl">
             <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
