@@ -20,10 +20,11 @@ interface Intent {
   data?: string;
 }
 
-export const useChat = (voiceProvider: VoiceProvider = 'elevenlabs-male') => {
+export const useChat = (initialVoiceProvider: VoiceProvider = 'elevenlabs-male') => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [userName, setUserName] = useState('');
+  const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>(initialVoiceProvider);
   const [conversationContext, setConversationContext] = useState<ConversationContext>({
     hasIntroduced: false,
     lastObjective: '',
@@ -193,6 +194,8 @@ export const useChat = (voiceProvider: VoiceProvider = 'elevenlabs-male') => {
     startConversation,
     isProcessing,
     userName,
-    conversationContext
+    conversationContext,
+    voiceProvider,
+    setVoiceProvider
   };
 };

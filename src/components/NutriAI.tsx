@@ -7,8 +7,14 @@ import VoiceSettings from './VoiceSettings';
 
 const NutriAI = () => {
   const { user } = useAuth();
-  const [voiceProvider, setVoiceProvider] = useState<VoiceProvider>('elevenlabs-male');
-  const { messages, sendMessage, startConversation, isProcessing } = useChat(voiceProvider);
+  const { 
+    messages, 
+    sendMessage, 
+    startConversation, 
+    isProcessing,
+    voiceProvider,
+    setVoiceProvider 
+  } = useChat('google'); // ✅ Iniciar com Google como padrão
   const [isActive, setIsActive] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [profileName, setProfileName] = useState<string>('');
@@ -39,7 +45,7 @@ const NutriAI = () => {
     };
     
     fetchProfileData();
-  }, [user]);
+  }, [user, setVoiceProvider]);
 
   // Salvar preferência de voz quando mudar
   const handleVoiceChange = (newVoice: VoiceProvider) => {
