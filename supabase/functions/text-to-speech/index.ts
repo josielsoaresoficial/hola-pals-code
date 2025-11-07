@@ -32,20 +32,30 @@ serve(async (req) => {
     // Se for Google TTS, usar a API gratuita do Google
     if (voiceProvider === 'google') {
       try {
+        console.log('Usando Google TTS gratuito');
+        
         // Usar a API gratuita do Google Translate TTS
         const googleUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=pt-BR&q=${encodeURIComponent(text.substring(0, 200))}`;
         
         const googleResponse = await fetch(googleUrl, {
           headers: {
-            'User-Agent': 'Mozilla/5.0'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
           }
         });
 
         if (!googleResponse.ok) {
-          throw new Error('Erro ao gerar voz do Google');
+          console.error('Google TTS retornou erro:', googleResponse.status);
+          throw new Error(`Google TTS falhou com status ${googleResponse.status}`);
         }
 
         const audioBuffer = await googleResponse.arrayBuffer();
+        
+        if (audioBuffer.byteLength === 0) {
+          throw new Error('Google TTS retornou áudio vazio');
+        }
+
+        console.log('Google TTS: Áudio gerado com sucesso, tamanho:', audioBuffer.byteLength);
+
         const uint8Array = new Uint8Array(audioBuffer);
         let binaryString = '';
         const chunkSize = 8192;
@@ -65,7 +75,18 @@ serve(async (req) => {
         );
       } catch (googleError) {
         console.error('Erro ao usar Google TTS:', googleError);
-        // Fallback para ElevenLabs se Google falhar
+        
+        // Retornar erro específico do Google ao invés de tentar ElevenLabs
+        return new Response(
+          JSON.stringify({ 
+            error: 'Falha ao gerar voz com Google TTS. Tente novamente ou selecione outra voz.',
+            details: googleError instanceof Error ? googleError.message : 'Erro desconhecido'
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          }
+        );
       }
     }
 
