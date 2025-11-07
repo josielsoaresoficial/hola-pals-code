@@ -246,7 +246,7 @@ export const useChat = (initialVoiceProvider: VoiceProvider = 'elevenlabs-male')
       }
 
       // Falar a resposta se solicitado
-      if (useVoice && !isVoiceLoading) {
+      if (useVoice) {
         await speak(aiResponse, voiceProvider);
       }
 
