@@ -3,6 +3,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, Flame, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import workoutArmsAbs from "@/assets/workout-arms-abs.jpg";
+import workoutChestLegs from "@/assets/workout-chest-legs.jpg";
+import workoutAbsDefined from "@/assets/workout-abs-defined.jpg";
+import workoutLegsGlutes from "@/assets/workout-legs-glutes.jpg";
+import workoutFreeweights from "@/assets/workout-freeweights.jpg";
+import workoutBack from "@/assets/workout-back.jpg";
+import workoutLegsFemale from "@/assets/workout-legs-female.jpg";
+import workoutCardio from "@/assets/workout-cardio.jpg";
 
 interface WorkoutCardProps {
   id: string;
@@ -63,45 +71,66 @@ export function WorkoutCard({
     return labels[level] || level;
   };
 
+  const getCategoryImage = (cat: string) => {
+    const images: Record<string, string> = {
+      "7_minute": workoutCardio,
+      full_body: workoutFreeweights,
+      abs: workoutAbsDefined,
+      hiit: workoutCardio,
+      strength: workoutFreeweights,
+      legs: workoutLegsGlutes,
+      back: workoutBack,
+      cardio: workoutCardio,
+      chest: workoutChestLegs,
+      arms: workoutArmsAbs,
+    };
+    return images[cat] || workoutFreeweights;
+  };
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-all hover:scale-[1.02] bg-gradient-to-br from-card to-card/50">
-      <div className="p-6">
-        <div className="flex items-start justify-between mb-3">
+      <div className="relative h-48 md:h-56">
+        {/* Imagem de fundo */}
+        <div className="absolute inset-0">
+          <img 
+            src={getCategoryImage(category)} 
+            alt={name}
+            className="w-full h-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+        </div>
+
+        {/* Conteúdo sobre a imagem */}
+        <div className="relative h-full p-6 flex flex-col justify-between">
           <div>
-            <Badge variant="outline" className="mb-2">
+            <Badge variant="outline" className="mb-2 bg-background/80 backdrop-blur-sm">
               {getCategoryName(category)}
             </Badge>
-            <h3 className="text-xl font-bold mb-1">{name}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">{description}</p>
+            <h3 className="text-xl font-bold text-white mb-2">{name}</h3>
+            <div className="flex items-center gap-3 text-sm text-white/90">
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                <span>{duration_minutes} min</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <Flame className="w-4 h-4 text-orange-400" />
+                <span>~{estimated_calories} kcal</span>
+              </div>
+              <Badge className={getDifficultyColor(difficulty)} variant="secondary">
+                {getDifficultyLabel(difficulty)}
+              </Badge>
+            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <Clock className="w-4 h-4" />
-            <span>{duration_minutes} min</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Flame className="w-4 h-4 text-orange-500" />
-            <span>~{estimated_calories} kcal</span>
-          </div>
-          <Badge className={getDifficultyColor(difficulty)} variant="secondary">
-            {getDifficultyLabel(difficulty)}
-          </Badge>
+          <Button
+            onClick={() => navigate(`/workout-player/${id}`)}
+            className="w-full bg-primary hover:bg-primary/90"
+            size="lg"
+          >
+            <Play className="w-5 h-5 mr-2" />
+            Iniciar Treino
+          </Button>
         </div>
-
-        <div className="text-xs text-muted-foreground mb-4">
-          {exercises_count} exercícios
-        </div>
-
-        <Button
-          onClick={() => navigate(`/workout-player/${id}`)}
-          className="w-full"
-          size="lg"
-        >
-          <Play className="w-5 h-5 mr-2" />
-          Iniciar Treino
-        </Button>
       </div>
     </Card>
   );
