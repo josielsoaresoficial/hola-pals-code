@@ -17,6 +17,7 @@ const NutriAI = () => {
   } = useChat('google'); // ✅ Iniciar com Google como padrão
   const [isActive, setIsActive] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [profileName, setProfileName] = useState<string>('');
   const recognitionRef = useRef<any>(null);
   const isRecognitionActive = useRef(false);
@@ -82,10 +83,10 @@ const NutriAI = () => {
         isRecognitionActive.current = false;
         setIsListening(false);
         
-        // ✅ RECONECTAR AUTOMATICAMENTE se ainda estiver ativo
-        if (isActive) {
+        // ✅ RECONECTAR AUTOMATICAMENTE se ainda estiver ativo E NÃO PAUSADO
+        if (isActive && !isPaused) {
           setTimeout(() => {
-            if (recognitionRef.current && isActive && !isRecognitionActive.current) {
+            if (recognitionRef.current && isActive && !isPaused && !isRecognitionActive.current) {
               try {
                 console.log('🔄 Reiniciando reconhecimento...');
                 recognitionRef.current.start();
@@ -98,6 +99,9 @@ const NutriAI = () => {
       };
 
       recognition.onresult = (event: any) => {
+        // ✅ NÃO PROCESSAR SE ESTIVER PAUSADO
+        if (isPaused) return;
+        
         let finalTranscript = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
           if (event.results[i].isFinal) {
@@ -126,7 +130,7 @@ const NutriAI = () => {
         recognitionRef.current.stop();
       }
     };
-  }, [isActive, sendMessage]);
+  }, [isActive, isPaused, sendMessage]);
 
 
 
@@ -149,6 +153,31 @@ const NutriAI = () => {
     }
   };
 
+  // ✅ PAUSAR/RETOMAR CONVERSA
+  const togglePause = () => {
+    if (isPaused) {
+      // RETOMAR
+      setIsPaused(false);
+      if (recognitionRef.current && !isRecognitionActive.current) {
+        try {
+          recognitionRef.current.start();
+        } catch (e) {
+          console.log('⚠️ Reconhecimento já ativo');
+        }
+      }
+    } else {
+      // PAUSAR
+      setIsPaused(true);
+      if (recognitionRef.current && isRecognitionActive.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          console.log('⚠️ Erro ao parar reconhecimento');
+        }
+      }
+    }
+  };
+
   // ✅ DESATIVAR CORRETAMENTE
   const deactivateNutriAI = () => {
     console.log('❌ Desativando NutriAI');
@@ -162,6 +191,7 @@ const NutriAI = () => {
     isRecognitionActive.current = false;
     setIsActive(false);
     setIsListening(false);
+    setIsPaused(false);
   };
 
 
@@ -196,6 +226,13 @@ const NutriAI = () => {
                   onVoiceChange={handleVoiceChange}
                 />
                 <button 
+                  onClick={togglePause}
+                  className="text-white hover:text-green-200 text-base bg-green-600 hover:bg-green-700 w-7 h-7 rounded-full flex items-center justify-center"
+                  title={isPaused ? 'Retomar conversa' : 'Pausar conversa'}
+                >
+                  {isPaused ? '▶️' : '⏸️'}
+                </button>
+                <button 
                   onClick={deactivateNutriAI}
                   className="text-white hover:text-green-200 text-base bg-green-600 hover:bg-green-700 w-7 h-7 rounded-full flex items-center justify-center"
                 >
@@ -222,17 +259,18 @@ const NutriAI = () => {
             ))}
             
             {/* ✅ INDICADOR DE STATUS */}
-            {(isListening || isProcessing) && (
+            {(isListening || isProcessing || isPaused) && (
               <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-2">
-                {isListening && '🎤 Ouvindo... Fale agora!'}
-                {isProcessing && '🔊 NutriAI processando...'}
+                {isPaused && '⏸️ Conversa pausada'}
+                {!isPaused && isListening && '🎤 Ouvindo... Fale agora!'}
+                {!isPaused && isProcessing && '🔊 NutriAI processando...'}
               </div>
             )}
           </div>
 
           <div className="p-3 bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 rounded-b-2xl">
             <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
-              💡 Conversa fluida ativa - Fale naturalmente
+              {isPaused ? '⏸️ Use o botão ▶️ para retomar' : '💡 Conversa fluida ativa - Fale naturalmente'}
             </p>
           </div>
         </div>
