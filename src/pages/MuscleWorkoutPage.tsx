@@ -418,6 +418,72 @@ const defaultWorkoutData = {
   ]
 };
 
+// Função para mapear nome do exercício para a animação correta
+const getAnimationForExercise = (exerciseName: string, muscleGroup: string): string => {
+  const name = exerciseName.toLowerCase();
+  
+  // Mapeamento por palavras-chave no nome do exercício
+  if (name.includes('encolhimento') || name.includes('shrug')) return 'encolhimento';
+  if (name.includes('supino')) return 'supino_reto';
+  if (name.includes('desenvolvimento') || name.includes('press')) return 'desenvolvimento_halteres';
+  if (name.includes('elevação lateral') || name.includes('elevacao lateral') || name.includes('lateral raise')) return 'elevacao_lateral';
+  if (name.includes('elevação frontal') || name.includes('elevacao frontal')) return 'elevacao_lateral';
+  if (name.includes('elevação posterior') || name.includes('elevacao posterior')) return 'elevacao_lateral';
+  if (name.includes('ponte') || name.includes('hip thrust') || name.includes('elevação pélvica') || name.includes('elevacao pelvica')) return 'ponte_gluteo';
+  if (name.includes('remada alta')) return 'remada_alta';
+  if (name.includes('remada') && name.includes('barra')) return 'remada_barra';
+  if (name.includes('remada')) return 'remada_halter';
+  if (name.includes('crucifixo')) return 'crucifixo';
+  if (name.includes('agachamento') || name.includes('squat')) return 'agachamento';
+  if (name.includes('leg press')) return 'leg_press';
+  if (name.includes('stiff') || name.includes('terra') || name.includes('deadlift')) return 'stiff';
+  if (name.includes('rosca')) return 'rosca_direta';
+  if (name.includes('tríceps') || name.includes('triceps')) return 'triceps_testa';
+  if (name.includes('abdominal') || name.includes('crunch')) return 'abdominal';
+  if (name.includes('prancha') || name.includes('plank')) return 'prancha';
+  if (name.includes('barra fixa') || name.includes('pull') || name.includes('puxada')) return 'barra_fixa';
+  if (name.includes('corrida') || name.includes('run')) return 'corrida';
+  if (name.includes('afundo') || name.includes('lunge')) return 'agachamento';
+  if (name.includes('extensora') || name.includes('extensão')) return 'leg_press';
+  if (name.includes('abdução') || name.includes('abducao') || name.includes('adução') || name.includes('aducao')) return 'aducao';
+  if (name.includes('coice')) return 'ponte_gluteo';
+  if (name.includes('face pull')) return 'remada_alta';
+  if (name.includes('arnold')) return 'desenvolvimento_halteres';
+  if (name.includes('paralela') || name.includes('mergulho') || name.includes('dip')) return 'barra_fixa';
+  if (name.includes('pullover')) return 'crucifixo';
+  if (name.includes('flexão') || name.includes('push')) return 'supino_reto';
+  if (name.includes('step')) return 'agachamento';
+  if (name.includes('hack')) return 'agachamento';
+  if (name.includes('sissy')) return 'agachamento';
+  if (name.includes('front squat')) return 'agachamento';
+  if (name.includes('bulgarian')) return 'agachamento';
+  
+  // Fallback por grupo muscular
+  const muscleDefaults: Record<string, string> = {
+    'trapézio': 'encolhimento',
+    'trapezio': 'encolhimento',
+    'glúteos': 'ponte_gluteo',
+    'gluteos': 'ponte_gluteo',
+    'ombros': 'desenvolvimento_halteres',
+    'peitoral': 'supino_reto',
+    'peito': 'supino_reto',
+    'costas': 'remada_halter',
+    'dorsais': 'barra_fixa',
+    'bíceps': 'rosca_direta',
+    'biceps': 'rosca_direta',
+    'tríceps': 'triceps_testa',
+    'triceps': 'triceps_testa',
+    'abdômen': 'abdominal',
+    'abdomen': 'abdominal',
+    'quadríceps': 'agachamento',
+    'quadriceps': 'agachamento',
+    'pernas': 'agachamento',
+    'adutores': 'aducao',
+  };
+  
+  return muscleDefaults[muscleGroup.toLowerCase()] || 'supino_reto';
+};
+
 export default function MuscleWorkoutPage() {
   const { muscleName } = useParams<{ muscleName: string }>();
   const navigate = useNavigate();
@@ -444,7 +510,7 @@ export default function MuscleWorkoutPage() {
         sets: 3,
         reps: '10-12',
         restTime: 60,
-        animation: 'supino_reto',
+        animation: getAnimationForExercise(ex.name, muscleName || 'geral'),
         instructions: [
           'Execute o movimento com controle',
           'Mantenha a postura correta',
